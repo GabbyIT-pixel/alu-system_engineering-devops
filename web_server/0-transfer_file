@@ -1,0 +1,27 @@
+#!/usste the code, then :wq to save
+
+chmod +x 0-transfer_file
+
+# Test it
+touch test.html
+./0-transfer_file test.html 54.227.215.118 ubuntu ~/.ssh/school
+
+# Verify file is on server
+ssh -i ~/.ssh/school ubuntu@54.227.215.118 'ls ~/'ste the code, then :wq to save
+
+chmod +x 0-transfer_file
+
+# Test it
+touch test.html
+./0-transfer_file test.html 54.227.215.118 ubuntu ~/.ssh/school
+
+# Verify file is on server
+ssh -i ~/.ssh/school ubuntu@54.227.215.118 'ls ~/'r/bin/env bash
+# Transfers a file from client to server using scp
+
+if [ "$#" -lt 4 ]; then
+    echo "Usage: 0-transfer_file PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+    exit 1
+fi
+
+scp -o StrictHostKeyChecking=no -i "$4" "$1" "$3@$2":~/
