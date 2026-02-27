@@ -1,1 +1,13 @@
-printf '#!/usr/bin/env bash\n# Transfers a file from client to server using scp\nif [ "$#" -lt 4 ]; then\n    echo "Usage: 0-transfer_file PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"\n    exit 1\nfi\nscp -o StrictHostKeyChecking=no -i "$4" "$1" "$3@$2":~/\n' > 0-transfer_file
+rm -f 0-transfer_file
+vi 0-transfer_file
+```
+
+Once vi opens, press `i` to insert, then type exactly:
+```
+#!/usr/bin/env bash
+# Transfers a file from client to server using scp
+if [ "$#" -lt 4 ]; then
+    echo "Usage: 0-transfer_file PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+    exit 1
+fi
+scp -o StrictHostKeyChecking=no -i "$4" "$1" "$3@$2":~/
