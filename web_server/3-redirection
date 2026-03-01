@@ -4,7 +4,23 @@
 apt-get update -y
 apt-get install -y nginx
 
-# Use sed to replace 'location / {' with redirect block + original location block
-sed -i 's|location / {|location /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}\n\nlocation / {|' /etc/nginx/sites-available/default
+# Write nginx config directly
+echo "server {
+	listen 80 default_server;
+	listen [::]:80 default_server ipv6only=on;
+
+	root /usr/share/nginx/html;
+	index index.html index.htm;
+
+	server_name localhost;
+
+	location /redirect_me {
+		return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+	}
+
+	location / {
+		try_files \$uri \$uri/ =404;
+	}
+}" > /etc/nginx/sites-available/default
 
 service nginx restart
