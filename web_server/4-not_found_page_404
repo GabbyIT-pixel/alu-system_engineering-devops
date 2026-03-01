@@ -6,7 +6,8 @@ apt-get install -y nginx
 echo "Holberton School" > /var/www/html/index.html
 echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-echo 'server {
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
 
@@ -24,6 +25,7 @@ echo 'server {
 	location / {
 		try_files $uri $uri/ =404;
 	}
-}' | sudo tee /etc/nginx/sites-available/default
+}
+EOF
 
 service nginx restart
