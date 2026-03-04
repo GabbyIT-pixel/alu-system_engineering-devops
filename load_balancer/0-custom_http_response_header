@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Configures a brand new Ubuntu server with Nginx and a custom HTTP response header X-Served-By set to the server hostname
+
+export DEBIAN_FRONTEND=noninteractive
+
+# Install Nginx if not already installed
+apt-get update -y
+apt-get install -y nginx
+
+# Allow Nginx through firewall
+ufw allow 'Nginx HTTP' 2>/dev/null || true
+
+# Get the hostname of the current server
+HOSTNAME=$(hostname)
+
+# Remove any existing X-Served-By header config to avoid duplicates
+sed -i '/X-Served-By/d' /etc/nginx/sites-available/default
+
+# Inject the custom header into the server block after 'server_name _;'
+sed -i "s/server_name _;/server_name _;\n\tadd_header X-Served-By \"$HOSTNAME\";/" /etc/nginx/sites-available/default
+
+# Make sure Nginx is enabled and running
+nginx -t && systemctl enable nginx && systemctl restart nginx
+
+# shellcheck disable=SC2154
