@@ -5,18 +5,16 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y nginx
 
-HOSTNAME=$(hostname)
-
-# Remove old header if exists
+# Remove any existing X-Served-By header
+sed -i '/X-Served-By/d' /etc/nginx/nginx.conf
 sed -i '/X-Served-By/d' /etc/nginx/sites-available/default
 
-# Add header inside the server block
-sed -i "s/server_name _;/server_name _;\n\tadd_header X-Served-By $HOSTNAME always;/" /etc/nginx/sites-available/default
+# Add header dynamically using hostname into the http block
+sed -i "s/http {/http {\n\tadd_header X-Served-By $(hostname) always;/" /etc/nginx/nginx.conf
 
 if command -v systemctl > /dev/null 2>&1; then
     systemctl restart nginx
 else
     service nginx restart
 fi
-
 # shellcheck disable=SC2154
