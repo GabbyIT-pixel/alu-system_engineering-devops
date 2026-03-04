@@ -7,14 +7,16 @@ apt-get install -y nginx
 
 HOSTNAME=$(hostname)
 
-printf "server {\n\tlisten 80 default_server;\n\tlisten [::]:80 default_server;\n\troot /var/www/html;\n\tindex index.html index.htm index.nginx-debian.html;\n\tserver_name _;\n\tadd_header X-Served-By %s always;\n\tlocation / {\n\t\ttry_files \$uri \$uri/ =404;\n\t}\n}\n" "$HOSTNAME" > /etc/nginx/sites-available/default
+# Remove old header if exists
+sed -i '/X-Served-By/d' /etc/nginx/sites-available/default
 
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-nginx -t
+# Add header inside the server block
+sed -i "s/server_name _;/server_name _;\n\tadd_header X-Served-By $HOSTNAME always;/" /etc/nginx/sites-available/default
+
 if command -v systemctl > /dev/null 2>&1; then
-    systemctl enable nginx
     systemctl restart nginx
 else
     service nginx restart
 fi
+
 # shellcheck disable=SC2154
