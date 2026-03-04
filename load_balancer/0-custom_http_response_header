@@ -5,21 +5,10 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y nginx
 
-# Write nginx config with hostname directly substituted
 HOSTNAME=$(hostname)
-CONFIG="server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    server_name _;
-    add_header X-Served-By \"$HOSTNAME\" always;
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-}"
 
-echo "$CONFIG" > /etc/nginx/sites-available/default
+printf "server {\n\tlisten 80 default_server;\n\tlisten [::]:80 default_server;\n\troot /var/www/html;\n\tindex index.html index.htm index.nginx-debian.html;\n\tserver_name _;\n\tadd_header X-Served-By %s always;\n\tlocation / {\n\t\ttry_files \$uri \$uri/ =404;\n\t}\n}\n" "$HOSTNAME" > /etc/nginx/sites-available/default
+
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 nginx -t
 if command -v systemctl > /dev/null 2>&1; then
