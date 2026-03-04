@@ -9,8 +9,9 @@ apt-get install -y nginx
 sed -i '/X-Served-By/d' /etc/nginx/nginx.conf
 sed -i '/X-Served-By/d' /etc/nginx/sites-available/default
 
-# Add header dynamically using hostname into the http block
-sed -i "s/http {/http {\n\tadd_header X-Served-By $(hostname) always;/" /etc/nginx/nginx.conf
+# Add header with dynamic hostname into the http block
+HOSTNAME=$(hostname)
+sed -i "s/http {/http {\n\tadd_header X-Served-By $HOSTNAME always;/" /etc/nginx/nginx.conf
 
 if command -v systemctl > /dev/null 2>&1; then
     systemctl restart nginx
