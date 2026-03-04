@@ -2,38 +2,25 @@
 # Configures a brand new Ubuntu server with Nginx and adds custom HTTP response header X-Served-By set to the server hostname
 
 export DEBIAN_FRONTEND=noninteractive
-
-# Install Nginx
 apt-get update -y
 apt-get install -y nginx
 
-# Get the hostname
 HOSTNAME=$(hostname)
 
-# Write a clean default Nginx config with the custom header
-cat > /etc/nginx/sites-available/default << EOF
+cat > /etc/nginx/sites-available/default << NGINXCONF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-
     root /var/www/html;
     index index.html index.htm index.nginx-debian.html;
-
     server_name _;
-
-    add_header X-Served-By \$HOSTNAME;
-
+    add_header X-Served-By "${HOSTNAME}";
     location / {
         try_files \$uri \$uri/ =404;
     }
 }
-EOF
+NGINXCONF
 
-# Replace the placeholder with the actual hostname
-sed -i "s/\\\$HOSTNAME/$HOSTNAME/" /etc/nginx/sites-available/default
-
-# Ensure sites-enabled symlink exists
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-# Test config and restart Nginx
-nginx -t && systemctl enable nginx && systemctl restart nginx
+nginx -t && service nginx restart
+# shellcheck disable=SC2154
