@@ -22,5 +22,11 @@ server {
 NGINXCONF
 
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-nginx -t && service nginx restart
+nginx -t
+if command -v systemctl > /dev/null 2>&1; then
+    systemctl enable nginx
+    systemctl restart nginx
+else
+    service nginx restart
+fi
 # shellcheck disable=SC2154
