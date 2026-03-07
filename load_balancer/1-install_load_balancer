@@ -1,54 +1,19 @@
-#!/usr/bin/env bash
-# Installs and configures HAProxy on lb-01 to balance traffic between web-01 and web-02 using round-robin
+nstall and configure HAproxy on your lb-01 server.
+# Make sure that HAproxy can be managed via an init script
+sudo apt-get -y update
+sudo apt-get -y install haproxy
 
-export DEBIAN_FRONTEND=noninteractive
+echo \
+"
+frontend
+        bind *:80
+        mode http
+        default_backend lb-backend
+backend lb-backend
+        balance roundrobin
+        server 6983-web-01 54.227.215.118:80 check
+        server 6983-web-02 3.83.142.166:80 check
+o | sudo ee -a /etc/haproxy/haproxy.cfg
 
-# Install HAProxy
-apt-get update -y
-apt-get install -y haproxy
-
-# Enable HAProxy to be managed by init script
-echo "ENABLED=1" > /etc/default/haproxy
-
-# Write HAProxy configuration
-cat > /etc/haproxy/haproxy.cfg << 'EOF'
-global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-    errorfile 400 /etc/haproxy/errors/400.http
-    errorfile 403 /etc/haproxy/errors/403.http
-    errorfile 408 /etc/haproxy/errors/408.http
-    errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/504.http
-
-frontend http_front
-    bind *:80
-    default_backend http_back
-
-backend http_back
-    balance roundrobin
-    server web-01 54.227.215.118:80 check
-    server web-02 <WEB_02_IP>:80 check
-EOF
-
-# Validate and restart HAProxy
-haproxy -c -f /etc/haproxy/haproxy.cfg && systemctl enable haproxy && systemctl restart haproxy
-
-# shellcheck disable=SC2154
+echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
+sudo service haproxy restart
